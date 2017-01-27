@@ -1,20 +1,18 @@
 open Visited
 
-module type Size =
-sig
+module type Size = sig
   val size : 'a tree -> int
 end
 
-module type Tree =
-sig
+module type TreeEq = sig
   val eq : 'a tree -> 'a tree -> bool
 end
 
-module MakeSize (T: Tree) : Size =
-struct
+module MakeSize (T: TreeEq) : Size = struct
+
   module VisitedNodes = MakeVisitor(struct
-      type 'a t = 'a tree
-      let eq = T.eq
+    type 'a t = 'a tree
+    let eq = T.eq
   end)
 
   let size tree =
@@ -26,5 +24,6 @@ struct
          else 1 + count g + count d
     in
     count tree
+
 end
 

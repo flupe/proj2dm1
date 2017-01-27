@@ -1,14 +1,12 @@
 type 'a tree = Node of 'a * 'a tree * 'a tree | Leaf
 
 (* signature describing modules exposing an equality function *)
-module type Eq =
-sig
+module type Eq = sig
   type 'a t
-  val eq : 'a t -> 'a t  -> bool
+  val eq : 'a t -> 'a t -> bool
 end
 
-module type Visitor =
-sig
+module type Visitor = sig
   type 'a t
   type 'a endpoint
   val create : unit -> 'a t
@@ -16,9 +14,8 @@ sig
   val tolist : 'a t -> 'a endpoint list
 end
 
-module MakeVisitor (T: Eq) : (Visitor with type 'a endpoint = 'a T.t) =
-struct
-  (* we need the structure to be mutable for `lookup` *)
+module MakeVisitor (T: Eq) : (Visitor with type 'a endpoint = 'a T.t) = struct
+
   type 'a t = 'a T.t list ref
 
   type 'a endpoint = 'a T.t
@@ -37,4 +34,5 @@ struct
     end
 
   let tolist t = !t
+
 end

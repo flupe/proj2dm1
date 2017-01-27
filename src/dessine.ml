@@ -5,7 +5,7 @@ open Graph.Pack
 
 module VisitedNodes = MakeVisitor(struct
     type 'a t = 'a tree * Digraph.V.t
-    let eq (t1, _) (t2, _)= t1 == t2
+    let eq (t1, _) (t2, _) = t1 == t2
 end)
 
 let affiche tree =

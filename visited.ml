@@ -1,34 +1,40 @@
 type 'a tree = Node of 'a * 'a tree * 'a tree | Leaf
 
-module type VisitedNodes =
+(* signature describing modules exposing an equality function *)
+module type Eq =
 sig
-  (* the structure where nodes are stored *)
   type 'a t
-  val create : unit -> 'a t
-  (* when the answer is "false", the structure is extended *)
-  val lookup : 'a tree -> 'a t -> bool
-  val tolist :  'a t -> 'a tree list
+  val eq : 'a t -> 'a t  -> bool
 end
 
-(* strict equality (aka in memory) *)
-let rec find tree = function
-  | h :: t -> h == tree || find tree t
-  | _ -> false
+module type Visitor =
+sig
+  type 'a t
+  type 'a endpoint
+  val create : unit -> 'a t
+  val lookup : 'a endpoint -> 'a t -> bool
+  val tolist : 'a t -> 'a endpoint list
+end
 
-module VisitedNodes =
+module MakeVisitor (T: Eq) : (Visitor with type 'a endpoint = 'a T.t) =
 struct
   (* we need the structure to be mutable for `lookup` *)
-  type 'a t = 'a tree list ref
+  type 'a t = 'a T.t list ref
+
+  type 'a endpoint = 'a T.t
+
+  let rec find elt = function
+    | h :: t -> T.eq h elt || find elt t
+    | _ -> false
 
   let create () = ref []
 
-  let lookup tree t =
-    if find tree !t then true
+  let lookup elt t =
+    if find elt !t then true
     else begin
-      t := tree :: !t;
+      t := elt :: !t;
       false
     end
 
   let tolist t = !t
 end
-

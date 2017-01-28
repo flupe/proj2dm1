@@ -1,4 +1,4 @@
-[http://perso.ens-lyon.fr/daniel.hirschkoff/P2/docs/dm.pdf](school assignment)
+[school assignment](http://perso.ens-lyon.fr/daniel.hirschkoff/P2/docs/dm.pdf)
 
 ## dependencies
 

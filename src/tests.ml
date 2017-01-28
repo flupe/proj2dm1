@@ -7,7 +7,7 @@ end
 
 (* physical tree *)
 module PTree = struct
-  let rec eq = (==)
+  let eq = (==)
 end
 
 (* topological tree *)

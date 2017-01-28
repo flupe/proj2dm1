@@ -17,7 +17,6 @@ module Memory = struct
 
   let add storage tree vertex =
     storage := (tree, vertex) :: !storage
-
 end
 
 let affiche tree =
@@ -25,32 +24,32 @@ let affiche tree =
   let storage = Memory.create () in
   let count = ref 0 in
 
-  let succ () =
-    let v = !count in begin
+  let new_vertex () =
+    let v = Digraph.V.create !count in begin
       incr count; v
     end
   in
 
   let rec build = function
     | Leaf ->
-      let leaf = Digraph.V.create (succ ()) in begin
+      let leaf = new_vertex () in begin
         Digraph.add_vertex graph leaf;
         leaf
       end
 
     | Node(x, g, d) as node ->
       match Memory.lookup storage node with
-      | Some vertex -> vertex
-      | None ->
-        let vertex = Digraph.V.create (succ ()) in
-        let left_child = build g in
-        let right_child = build d in begin
-          Digraph.add_vertex graph vertex;
-          Digraph.add_edge graph vertex left_child;
-          Digraph.add_edge graph vertex right_child;
-          Memory.add storage node vertex;
-          vertex
-        end
+        | Some vertex -> vertex
+        | None ->
+          let vertex = new_vertex () in
+          let left_child = build g in
+          let right_child = build d in begin
+            Digraph.add_vertex graph vertex;
+            Digraph.add_edge graph vertex left_child;
+            Digraph.add_edge graph vertex right_child;
+            Memory.add storage node vertex;
+            vertex
+          end
 
   in
   let _ = build tree in

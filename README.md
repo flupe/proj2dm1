@@ -3,21 +3,24 @@
 ## dependencies
 
 ### system dependencies
-`dot` and `gv` are used to display tree graphs.
+`dot` is used to display tree graphs.
 
 ```
-apt-get install dot gv
+apt-get install dot
 ```
 
 ### ocaml dependencies
 
+`ocamldot` is used to create a dot representation of a tree. I chose `ocamldot` rather than `ocamlgraph` because it is lighter and offers more flexibility (drawbacks: quite verbose and hasn't been updated since 2012 (!), yet it seems to work fine).
+
+*a previous implementation of the drawing routine using `ocamlgraph` can be found in the git history of this repo.*
 ```
-opam install ocamlfind ocamlgraph
+opam install ocamlfind ocamldot
 ```
 
 ## todo
 - remove parametric type `'a t` from `MakeVisitor` functor.
-- eventually get rid of `gv`, improve `dot` format generation.
+- rewrite `tests.ml`, ideally allowing for cmd args.
 
 ## notes
 - usage:

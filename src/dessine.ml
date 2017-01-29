@@ -13,7 +13,7 @@ let leaf_style = [
 ]
 
 let node_style = [
-  "width" => ".6"
+  "width" => ".55"
 ]
 
 (* a variant of the VisitedNodes module *)

@@ -98,7 +98,7 @@ let () = begin
 
   (* runs several size calculations *)
   if !run_size_tests then
-    let trees = random_trees 20 5 in
+    let trees = random_trees 20 7 in
     List.iter (fun tree -> begin
       print_string "structural size: ";
       print_endline @@ string_of_int @@ structural_size tree;

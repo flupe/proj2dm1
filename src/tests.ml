@@ -25,9 +25,11 @@ end
 module SSize = Physize.MakeSize(STree)
 module PSize = Physize.MakeSize(PTree)
 module TSize = Physize.MakeSize(TTree)
+module SPSize = Physize.MakeSetSize(PTree)
 
 let structural_size = SSize.size
 let physical_size = PSize.size
+let physical_set_size = SPSize.size
 
 let generate_trees depth =
   let rec aux depth (forced, none, all) =
@@ -83,6 +85,7 @@ let random_trees n p =
 
 let random_tree_depth = ref (-1)
 let run_size_tests = ref false
+let run_perf_tests = ref false
 
 let set_depth n =
   random_tree_depth := n
@@ -90,22 +93,45 @@ let set_depth n =
 let () = begin
   let speclist = [
     ("-r", Arg.Int (set_depth), "Displays a random tree with given depth parameter");
-    ("-b", Arg.Set (run_size_tests), "Toggles the execution of size comparisons over random trees")
+    ("-b", Arg.Set (run_size_tests), "Toggles the execution of size comparisons over random trees");
+    ("-p", Arg.Set (run_perf_tests), "Runs performance comparison of Hashtbl vs Lists")
   ] in
   let msg = "PROJ2/DM1 -- options available :"
   in Arg.parse speclist print_endline msg;
-  let _ = Random.self_init () in
+  Random.self_init ();
 
   (* runs several size calculations *)
-  if !run_size_tests then
+  if !run_size_tests then begin
     let trees = random_trees 20 7 in
     List.iter (fun tree -> begin
       print_string "structural size: ";
       print_endline @@ string_of_int @@ structural_size tree;
       print_string "physical size: ";
       print_endline @@ string_of_int @@ physical_size tree;
+      print_string "set physical size: ";
+      print_endline @@ string_of_int @@ physical_set_size tree;
       print_endline "---";
-    end) trees;
+        end) trees
+  end;
+
+  (* runs performance tests *)
+  if !run_perf_tests then begin
+    let trees = random_trees 5000 7 in
+    let _ = print_string "yop" in
+    let start = Unix.gettimeofday () in begin
+      List.iter (fun tree -> ignore @@ physical_size tree) trees;
+      let delta1 = Unix.gettimeofday () -. start in
+      let start = Unix.gettimeofday () in
+      let _ = List.iter (fun tree -> ignore @@ physical_set_size tree) trees in
+      let delta2 = Unix.gettimeofday () -. start in begin
+        print_endline "200 calculations ---";
+        print_string "physical_size with lists: ";
+        print_endline @@ string_of_float delta1;
+        print_string "physical_size with Hashtbl: ";
+        print_endline @@ string_of_float delta2;
+        end
+    end
+  end;
 
   (* displays a random tree *)
   if !random_tree_depth >= 0 then
@@ -118,4 +144,3 @@ let () = begin
       Dessine.affiche tree
     end
 end
-

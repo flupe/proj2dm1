@@ -27,3 +27,30 @@ module MakeSize (T: TreeEq) : Size = struct
 
 end
 
+(* only working with int trees :'( *)
+module MakeSetSize (T: TreeEq) = struct
+
+  module VisitedTbl = Hashtbl.Make(struct
+    type t = int tree
+    let equal = T.eq
+    let hash = Hashtbl.hash
+  end)
+
+  let size tree =
+    let storage = VisitedTbl.create 100 in
+    let rec count = function
+      | Leaf -> 0
+      | Node(_, g, d) as node ->
+        if VisitedTbl.mem storage node then 0
+        else
+          let lc = count g in
+          let rc = count d in begin
+            VisitedTbl.add storage node ();
+            lc + rc + 1
+          end
+    in count tree
+
+end
+
+
+

@@ -28,6 +28,7 @@ The resulting program offers several options that can be seen with `./tests.nati
 PROJ2/DM1 -- options available :
   -r Displays a random tree with given depth parameter
   -b Toggles the execution of size comparisons over random trees
+  -p Runs performance tests
   -help  Display this list of options
   --help  Display this list of options
 ```
@@ -35,28 +36,26 @@ PROJ2/DM1 -- options available :
 Example :
 - `./tests.native -r 9`
 - `./tests.native -b`
+- `./tests.native -p`
 
 ## todo
 - remove parametric type `'a t` from `MakeVisitor` functor.
-- rewrite `tests.ml`, ideally allowing for cmd args.
 
 ## notes
-- usage:
-  - compile : `make`
-  - run : `./tests.native`
 - beginner part: done
 - intermediate part:
   1. generalized tree: done, unfortunately I can't make it happen without using a parametric type `'a t` for the `Visitor` module (an abstract type `t` would be preferable)
   2. uniform size definition: done
   3. tree rendering: done
-- advanced part: (im sorry)
+- advanced part: did a dirty implementation with Hashtbl (which can only work with abstract types, so only `int tree` for now).
+  Sadly when you run performance tests (`-p`), it seems to be quite inefficient.
 
 ### 07/02/2017 update
 One solution for the abstract/parametric type issue could be to use a (recent?) feature of ocaml :
 ```ocaml
 let size (type a) (t : a tree) =
   (* we know have access to the type of the tree *)
-  let t = [] : a list in
+  let t : a list = [] in
   (* ideally I would like to create the VisitedNodes module here, with type a tree
      (which is not parametric!), but apparently I can't create modules inside functions
    *)

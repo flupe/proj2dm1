@@ -34,3 +34,4 @@ module MakeVisitor (T: Eq) : (Visitor with type 'a elt = 'a T.t) = struct
 
   let tolist t = !t
 end
+

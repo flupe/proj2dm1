@@ -22,31 +22,12 @@ end
 
 (* ================================== *)
 
-
-
-(* sample trees *)
-let t1 = Node(0, Node(0, Leaf, Leaf), Node(0, Leaf, Leaf))
-
-let t2 =
-  let t' = Node(0, Leaf, Leaf) in
-  Node(0, t', t')
-
-let t3 =
-  let t' = Node(1, Leaf, Leaf) in
-  Node(2, Node(1, t', Leaf), Node(3, Leaf, t'))
-
-let t4 =
-  let t' = Node(1, Leaf, Leaf) in
-  let t'' = Node(2, Leaf, Leaf) in
-  Node(0, Node(4, t', t''), Node(3, t'', t'))
-
 module SSize = Physize.MakeSize(STree)
 module PSize = Physize.MakeSize(PTree)
 module TSize = Physize.MakeSize(TTree)
 
 let structural_size = SSize.size
 let physical_size = PSize.size
-let topological_size = TSize.size
 
 let generate_trees depth =
   let rec aux depth (forced, none, all) =
@@ -60,22 +41,81 @@ let generate_trees depth =
 
 (* ================================== *)
 
-let () =
-  (* generate all trees of depth 4 (+Leaf) *)
-  let trees = generate_trees 4 in
+(* returns true with probability p *)
+let event p =
+  Random.float 1.0 < p
 
-  print_string "amount of 4-depth trees: ";
-  print_endline @@ string_of_int @@ length trees;
+(* picks a tree uniformly in the tree list *)
+let take_random trees =
+  let rec aux k mem = function
+    | h :: t ->
+      let mem' = if event (1.0 /. k) then h else mem
+      in aux (k +. 1.0) mem' t
+    | _ -> mem
+  in aux 1.0 Leaf trees
 
-  print_newline ();
+(* returns a random tree *)
+(* note that the depth parameter only guaranties termination,
+    it has limited effect over the final depth *)
+let generate_tree depth =
+  let rec sub_tree depth acc =
+    if event 0.8 then
+      aux depth acc
+    else
+      take_random acc, acc
 
-  (* select one from the list *)
-  let t = List.nth trees 75 in begin
-    print_string "structural size: ";
-    print_endline @@ string_of_int @@ structural_size t;
+  and aux depth acc =
+    if depth = 0 then Leaf, acc
+    else begin
+      let left, acc' = sub_tree (depth - 1) acc in
+      let right, acc'' = sub_tree (depth - 1) acc' in
+      let node = Node(depth, left, right) in
+      node, node :: acc''
+    end
+  in let tree, _ = aux depth []
+  in tree
 
-    print_string "physical size: ";
-    print_endline @@ string_of_int @@ physical_size t;
+let random_trees n p =
+  let rec aux acc n =
+    if n = 0 then acc
+    else aux (generate_tree p :: acc) (n - 1)
+  in aux [] n
 
-    Dessine.affiche t
-  end
+let random_tree_depth = ref (-1)
+let run_size_tests = ref false
+
+let set_depth n =
+  random_tree_depth := n
+
+let () = begin
+  let speclist = [
+    ("-r", Arg.Int (set_depth), "Displays a random tree with given depth parameter");
+    ("-b", Arg.Set (run_size_tests), "Toggles the execution of size comparisons over random trees")
+  ] in
+  let msg = "PROJ2/DM1 -- options available :"
+  in Arg.parse speclist print_endline msg;
+  let _ = Random.self_init () in
+
+  (* runs several size calculations *)
+  if !run_size_tests then
+    let trees = random_trees 20 5 in
+    List.iter (fun tree -> begin
+      print_string "structural size: ";
+      print_endline @@ string_of_int @@ structural_size tree;
+      print_string "physical size: ";
+      print_endline @@ string_of_int @@ physical_size tree;
+      print_endline "---";
+    end) trees;
+
+  (* displays a random tree *)
+  if !random_tree_depth >= 0 then
+    let tree = generate_tree 9 in begin
+      print_string "structural size: ";
+      print_endline @@ string_of_int @@ structural_size tree;
+
+      print_string "physical size: ";
+      print_endline @@ string_of_int @@ physical_size tree;
+      Dessine.affiche tree
+    end
+end
+

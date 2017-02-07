@@ -16,12 +16,12 @@ let node_style = [
   "width" => ".55"
 ]
 
-(* a variant of the VisitedNodes module *)
+(* a variant of the VisitedNodes module
+   avec une liste associative pour contenir les noeuds du graphe
+   associés aux noeuds de l'arbre *)
 module Memory = struct
   type 'a t = ('a tree * node_id) list ref
-
   let create () = ref []
-
   (* val lookup : 'a t -> 'a tree -> node_id option *)
   let lookup storage tree =
     let rec search = function
@@ -30,6 +30,7 @@ module Memory = struct
     in
     search !storage
 
+  (* insère une nouvelle valeur dans la structure *)
   let add storage tree vertex =
     storage := (tree, vertex) :: !storage
 end
@@ -41,9 +42,11 @@ let display graph = begin
   ignore @@ Sys.command "xdg-open /tmp/graph.pdf"
 end
 
+(* affiche un int tree à l'écran *)
 let affiche tree =
+  (* création du graphe vide *)
   let tree_graph : graph = {
-    strict = true;
+    strict = false;
     kind = Digraph;
     id = None;
     stmt_list = []
